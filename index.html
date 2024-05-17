@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+  <html lang="en">
+    <head>
+    <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Astrological Calculator</title>
+        <style>
+        body {
+          font-family: Arial, sans-serif;
+          margin: 20px;
+        }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .input-group {
+        margin-bottom: 10px;
+      }
+      .input-group label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      .input-group input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+      }
+      .result {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+      }
+      </style>
+        </head>
+        <body>
+        
+        <div class="container">
+        <h1>Astrological Calculator</h1>
+        
+        <div class="input-group">
+        <label for="latitude_deg">Latitude Degrees:</label>
+        <input type="number" id="latitude_deg" value="51">
+        </div>
+        
+        <div class="input-group">
+        <label for="latitude_min">Latitude Minutes:</label>
+        <input type="number" id="latitude_min" value="32">
+        </div>
+        
+        <div class="input-group">
+        <label for="latitude_sec">Latitude Seconds:</label>
+        <input type="number" id="latitude_sec" value="56">
+        </div>
+        
+        <div class="input-group">
+        <label for="ascendant_deg">Ascendant Degrees:</label>
+        <input type="number" id="ascendant_deg" value="229">
+        </div>
+        
+        <div class="input-group">
+        <label for="ascendant_min">Ascendant Minutes:</label>
+        <input type="number" id="ascendant_min" value="45">
+        </div>
+        
+        <div class="input-group">
+        <label for="ascendant_sec">Ascendant Seconds:</label>
+        <input type="number" id="ascendant_sec" value="0">
+        </div>
+        
+        <div class="input-group">
+        <label for="midheaven_deg">Midheaven Degrees:</label>
+        <input type="number" id="midheaven_deg" value="159">
+        </div>
+        
+        <div class="input-group">
+        <label for="midheaven_min">Midheaven Minutes:</label>
+        <input type="number" id="midheaven_min" value="23">
+        </div>
+        
+        <div class="input-group">
+        <label for="midheaven_sec">Midheaven Seconds:</label>
+        <input type="number" id="midheaven_sec" value="0">
+        </div>
+        
+        <div class="input-group">
+        <label for="vertex_deg">Vertex Degrees:</label>
+        <input type="number" id="vertex_deg" value="91">
+        </div>
+        
+        <div class="input-group">
+        <label for="vertex_min">Vertex Minutes:</label>
+        <input type="number" id="vertex_min" value="0">
+        </div>
+        
+        <div class="input-group">
+        <label for="vertex_sec">Vertex Seconds:</label>
+        <input type="number" id="vertex_sec" value="23">
+        </div>
+        
+        <button onclick="calculate()">Calculate</button>
+        
+        <div class="result" id="result"></div>
+        </div>
+        
+        <script>
+        function base360(degrees) {
+          return degrees % 360;
+        }
+      
+      function tand(degrees) {
+        return Math.tan(degrees * Math.PI / 180);
+      }
+      
+      function calculate() {
+        const latitude_deg = parseFloat(document.getElementById('latitude_deg').value);
+        const latitude_min = parseFloat(document.getElementById('latitude_min').value);
+        const latitude_sec = parseFloat(document.getElementById('latitude_sec').value);
+        const ascendant_deg = parseFloat(document.getElementById('ascendant_deg').value);
+        const ascendant_min = parseFloat(document.getElementById('ascendant_min').value);
+        const ascendant_sec = parseFloat(document.getElementById('ascendant_sec').value);
+        const midheaven_deg = parseFloat(document.getElementById('midheaven_deg').value);
+        const midheaven_min = parseFloat(document.getElementById('midheaven_min').value);
+        const midheaven_sec = parseFloat(document.getElementById('midheaven_sec').value);
+        const vertex_deg = parseFloat(document.getElementById('vertex_deg').value);
+        const vertex_min = parseFloat(document.getElementById('vertex_min').value);
+        const vertex_sec = parseFloat(document.getElementById('vertex_sec').value);
+        
+        const latitude_decimal = latitude_deg <= 45 ?
+          (latitude_deg + (((latitude_sec / 60) + latitude_min) / 60)) :
+          90 - (latitude_deg + (((latitude_sec / 60) + latitude_min) / 60));
+        
+        const ascendant_decimal = ascendant_deg + (((ascendant_sec / 60) + ascendant_min) / 60);
+        const midheaven_decimal = midheaven_deg + (((midheaven_sec / 60) + midheaven_min) / 60);
+        const midheaven_square = base360(midheaven_decimal + 90);
+        
+        const vertex_decimal = vertex_deg + (((vertex_sec / 60) + vertex_min) / 60);
+        
+        const anti_vertex_deg = base360(vertex_deg + 180);
+        const anti_vertex_min = vertex_min;
+        const anti_vertex_sec = vertex_sec;
+        const anti_vertex_decimal = anti_vertex_deg + (((anti_vertex_sec / 60) + anti_vertex_min) / 60);
+        
+        const ascendant_vertex_delta = Math.abs(ascendant_decimal - anti_vertex_decimal);
+        
+        let vertex_strength, ascendant_strength;
+        if (latitude_deg <= 45) {
+          vertex_strength = ((tand(latitude_decimal) ** 2) / 2);
+          ascendant_strength = 1 - vertex_strength;
+        } else {
+          vertex_strength = 1 - ((tand(latitude_decimal) ** 2) / 2);
+          ascendant_strength = 1 - vertex_strength;
+        }
+        
+        const ascendant_delta = ascendant_vertex_delta * vertex_strength;
+        
+        let new_ascendant;
+        if (latitude_deg <= 45) {
+          new_ascendant = base360(ascendant_decimal + ascendant_delta);
+        } else {
+          new_ascendant = base360(ascendant_decimal - ascendant_delta);
+        }
+        
+        const new_ascendant_midheaven_delta = base360(midheaven_square - new_ascendant);
+        
+        let new_midheaven;
+        if (latitude_deg <= 45) {
+          new_ascendant = base360(new_ascendant - (new_ascendant_midheaven_delta / 2));
+          new_midheaven = base360(midheaven_decimal + (new_ascendant_midheaven_delta / 2));
+        } else {
+          new_ascendant = base360(new_ascendant + (new_ascendant_midheaven_delta / 2));
+          new_midheaven = base360(midheaven_decimal - (new_ascendant_midheaven_delta / 2));
+        }
+        
+        document.getElementById('result').innerHTML = `
+        <p>New Ascendant: ${new_ascendant.toFixed(2)}</p>
+          <p>New Midheaven: ${new_midheaven.toFixed(2)}</p>
+          `;
+      }
+      </script>
+        
+        </body>
+        </html>
+        
