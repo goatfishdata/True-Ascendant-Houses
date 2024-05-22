@@ -1,0 +1,9 @@
+@font-face {  
+  src: url(Astro-ZLzx.ttf);
+  font-family: "Astro";
+}
+
+.p_Style {
+  font-family: 'Astro';
+  color: black;
+}
